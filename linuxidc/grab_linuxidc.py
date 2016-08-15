@@ -1,12 +1,26 @@
 #! /usr/bin/python
 # -*- coding: utf-8 -*-
 
-import urllib2
-import sys
-import re
-from urlparse import urlparse
 from HTTPAuthorization import HTTPAuthorization
 from PageHandler import PageHandler
+import re
+import os
+
+# set default coding
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+# set the directory
+cwd = os.getcwd()
+new_dir = cwd + '/linuxidc'
+try:
+	os.chdir(new_dir)
+except OSError, e:
+	os.mkdir(new_dir)
+	os.chdir(new_dir)
+finally:
+	print os.getcwd()
 
 # 根目录网址及用户名密码
 url = 'http://linux.linuxidc.com'
@@ -20,10 +34,11 @@ authheader = httpauthorization.gen_authheader()
 url_page = PageHandler(url,authheader)
 
 try:
-    url_page.read_page()
+    url_page_text = url_page.read_page()
+    print '\n===================================\n'
+    url_page.analysis_page()
 except IOError, e:
     print e
-
 
 if __name__ == '__main__':
     pass

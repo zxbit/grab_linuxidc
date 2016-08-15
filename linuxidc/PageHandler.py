@@ -26,8 +26,18 @@ class PageHandler:
         return self.url_handler.read()
 
 
-    def download_page(self):
-    	print 'download'
+    def download_page(self, url, text):
+        download_page_handler = PageHandler(url, self.authheader)
+        try:
+            download_file = download_page_handler.read_page()
+            with open(text, "wb") as code:
+                code.write(download_file)
+            pass
+        except IOError, e:
+            print text, e, "\n download failed"
+            pass
+
+    	print text, 'downloaded'
         pass
 
 
@@ -36,38 +46,36 @@ class PageHandler:
 
     	# find all link
     	self.url_list = self.page_soup.find_all('a')
-    	
+
     	# link iteration
     	for link in self.url_list:
     		link_url = "http://linux.linuxidc.com" + link.get('href')
-    	
+
     		# match directory
     		regex_pattern = r'.\..'
     		pattern = re.compile(regex_pattern)
     		text = link.get_text()
     		text_match = re.findall(regex_pattern, text)
-    	
+
     		# current directory has files
     		if text_match:
-    			self.download_page()
+    			self.download_page(link_url, text)
     		elif text == '[To Parent Directory]':
     			pass
     		else: # get a new page
-    			self.change_dir(text)
+    			self.create_dir(text)
     			new_pagehandler = PageHandler(link_url, self.authheader)
     			try:
     				new_pagehandler.analysis_page()
     			except IOError, e:
-    				print e
+    				print text,e
     				pass
     			finally:
     				os.chdir(self.cur_dir)
-    		# print link_url
-    		#print text
-    		
 
 
-    def change_dir(self, link_text):
+
+    def create_dir(self, link_text):
     	cwd = os.getcwd()
     	new_dir = unicode(cwd) + u'/' + link_text
 
@@ -79,7 +87,7 @@ class PageHandler:
     	finally:
     		# print os.getcwd()
     		pass
-    	
+
 
 if __name__ == '__main__':
     pass
